@@ -124,10 +124,12 @@ async function handleLogin(e) {
         if (response.ok) {
             localStorage.setItem('token', data.token);
             await loadUserData();
+            // Force admin panel if user is admin
             if (isAdmin) {
+                window.location.hash = '#admin';
                 showAdminPanel();
             } else {
-            showBookList();
+                showBookList();
             }
         } else {
             console.error('Login failed:', data);
@@ -416,7 +418,9 @@ async function loadUserData() {
             currentUser = userData;
             isAdmin = userData.isAdmin;
             updateNavigation();
-            if (isAdmin && window.location.hash !== '#admin') {
+            // Check if user is admin and redirect to admin panel
+            if (isAdmin) {
+                window.location.hash = '#admin';
                 showAdminPanel();
             }
         } else {
@@ -459,8 +463,9 @@ function logout() {
 // Check for existing session on page load
 document.addEventListener('DOMContentLoaded', async () => {
     await loadUserData();
-    if (!isAdmin) {
-    showBookList();
+    // Check URL hash for admin panel
+    if (window.location.hash === '#admin' && isAdmin) {
+        showAdminPanel();
     }
 });
 
