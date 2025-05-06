@@ -9,7 +9,9 @@ const usersList = document.getElementById('users-list');
 const pendingBooksList = document.getElementById('pending-books-list');
 
 // API Base URL
-const API_BASE_URL = 'http://localhost:3001';
+const API_BASE_URL = window.location.origin.includes('localhost')
+  ? 'http://localhost:3001'
+  : window.location.origin;
 
 // Navigation Links
 const loginLink = document.getElementById('login-link');
@@ -111,7 +113,7 @@ async function handleLogin(e) {
     const password = e.target[1].value;
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        const response = await fetch(`/api/auth/login`, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
@@ -148,7 +150,7 @@ async function handleRegister(e) {
     const password = e.target[2].value;
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+        const response = await fetch(`/api/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, email, password })
@@ -177,7 +179,7 @@ async function handleUpload(e) {
     formData.append('book', e.target[3].files[0]);
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/books/upload`, {
+        const response = await fetch(`/api/books/upload`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -205,7 +207,7 @@ async function loadBooks() {
         return;
     }
     try {
-        const response = await fetch(`${API_BASE_URL}/api/books`, {
+        const response = await fetch(`/api/books`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -223,7 +225,7 @@ async function loadBooks() {
 
 async function loadMyBooks() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/books/my-books`, {
+        const response = await fetch(`/api/books/my-books`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
@@ -260,7 +262,7 @@ function displayBooks(books) {
 
 async function downloadBook(bookId) {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/books/download/${bookId}`, {
+        const response = await fetch(`/api/books/download/${bookId}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
@@ -289,7 +291,7 @@ async function deleteBook(bookId) {
     if (!confirm('Are you sure you want to delete this book?')) return;
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/books/${bookId}`, {
+        const response = await fetch(`/api/books/${bookId}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -310,7 +312,7 @@ async function deleteBook(bookId) {
 
 async function loadUsers() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/admin/users`, {
+        const response = await fetch(`/api/admin/users`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
@@ -349,7 +351,7 @@ async function deleteUser(userId) {
     if (!confirm('Are you sure you want to delete this user?')) return;
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/admin/users/${userId}`, {
+        const response = await fetch(`/api/admin/users/${userId}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -370,7 +372,7 @@ async function deleteUser(userId) {
 
 async function loadPendingBooks() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/admin/pending-books`, {
+        const response = await fetch(`/api/admin/pending-books`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
@@ -407,7 +409,7 @@ async function loadUserData() {
     if (!token) return;
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+        const response = await fetch(`/api/auth/me`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -539,7 +541,7 @@ function showAddUserModal() {
         const password = e.target[2].value;
         const isAdmin = e.target[3].checked;
         try {
-            const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+            const response = await fetch(`/api/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
                 body: JSON.stringify({ username, email, password, isAdmin })
@@ -608,7 +610,7 @@ function showAddBookModal() {
         e.preventDefault();
         const formData = new FormData(e.target);
         try {
-            const response = await fetch(`${API_BASE_URL}/api/books/upload`, {
+            const response = await fetch(`/api/books/upload`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
                 body: formData
@@ -632,7 +634,7 @@ function showEditBookModal(bookId) {
 
 async function loadBooksAdmin() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/admin/all-books`, {
+        const response = await fetch(`/api/admin/all-books`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
         if (!response.ok) throw new Error('Failed to load books');
@@ -646,7 +648,7 @@ async function loadBooksAdmin() {
 async function deleteBookAdmin(bookId) {
     if (!confirm('Are you sure you want to delete this book?')) return;
     try {
-        const response = await fetch(`${API_BASE_URL}/api/books/${bookId}`, {
+        const response = await fetch(`/api/books/${bookId}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
@@ -661,7 +663,7 @@ async function deleteBookAdmin(bookId) {
 }
 
 function loadRecentBooks() {
-    fetch(`${API_BASE_URL}/api/admin/all-books`, {
+    fetch(`/api/admin/all-books`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
     })
     .then(res => {
