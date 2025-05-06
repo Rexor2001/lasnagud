@@ -92,6 +92,11 @@ function showMyBooks() {
 function showAdminPanel() {
     hideAll();
     renderAdminPanel();
+    // Show loading messages
+    document.getElementById('users-list').innerHTML = '<tr><td colspan="4">Loading users...</td></tr>';
+    document.getElementById('books-list').innerHTML = '<tr><td colspan="5">Loading books...</td></tr>';
+    document.getElementById('pending-books-list').innerHTML = '<p>Loading pending books...</p>';
+    // Load data
     loadUsers();
     loadBooksAdmin();
     loadPendingBooks();
@@ -324,7 +329,7 @@ async function loadUsers() {
         displayUsers(users);
     } catch (error) {
         console.error('Error loading users:', error);
-        usersList.innerHTML = '<p class="error">Error loading users. Please check if the server is running.</p>';
+        document.getElementById('users-list').innerHTML = '<tr><td colspan="4">Error loading users. Please check if the server is running and you are logged in as admin.</td></tr>';
     }
 }
 
@@ -384,16 +389,16 @@ async function loadPendingBooks() {
         displayPendingBooks(books);
     } catch (error) {
         console.error('Error loading pending books:', error);
-        pendingBooksList.innerHTML = '<p class="error">Error loading pending books. Please check if the server is running.</p>';
+        document.getElementById('pending-books-list').innerHTML = '<p>Error loading pending books. Please check if the server is running and you are logged in as admin.</p>';
     }
 }
 
 function displayPendingBooks(books) {
+    const pendingBooksList = document.getElementById('pending-books-list');
     if (!books || books.length === 0) {
         pendingBooksList.innerHTML = '<p>No pending books found.</p>';
         return;
     }
-
     pendingBooksList.innerHTML = books.map(book => `
         <div class="pending-book-card">
             <h3>${book.title}</h3>
@@ -641,7 +646,8 @@ async function loadBooksAdmin() {
         const books = await response.json();
         displayBooksAdmin(books);
     } catch (error) {
-        alert('Error loading books.');
+        console.error('Error loading books:', error);
+        document.getElementById('books-list').innerHTML = '<tr><td colspan="5">Error loading books. Please check if the server is running and you are logged in as admin.</td></tr>';
     }
 }
 
