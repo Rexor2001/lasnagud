@@ -96,6 +96,11 @@ function showAdminPanel() {
     document.getElementById('users-list').innerHTML = '<tr><td colspan="4">Loading users...</td></tr>';
     document.getElementById('books-list').innerHTML = '<tr><td colspan="5">Loading books...</td></tr>';
     document.getElementById('pending-books-list').innerHTML = '<p>Loading pending books...</p>';
+    // Check if user is admin
+    if (!isAdmin) {
+        document.getElementById('admin-panel').innerHTML = '<div style="color:red;font-size:1.2em;padding:2em;">You are not authorized to view this page. Please log in as an admin.</div>';
+        return;
+    }
     // Load data
     loadUsers();
     loadBooksAdmin();
@@ -329,12 +334,15 @@ async function loadUsers() {
         displayUsers(users);
     } catch (error) {
         console.error('Error loading users:', error);
-        document.getElementById('users-list').innerHTML = '<tr><td colspan="4">Error loading users. Please check if the server is running and you are logged in as admin.</td></tr>';
+        document.getElementById('users-list').innerHTML = '<tr><td colspan="4" style="color:red;">Error loading users: ' + error + '</td></tr>';
+        document.getElementById('admin-panel').insertAdjacentHTML('afterbegin', '<div style="color:red;font-size:1.2em;">Error loading users: ' + error + '</div>');
     }
 }
 
 function displayUsers(users) {
     const usersList = document.getElementById('users-list');
+    // Debug output
+    document.getElementById('admin-panel').insertAdjacentHTML('beforeend', `<pre style="color:blue;">Users API response: ${JSON.stringify(users, null, 2)}</pre>`);
     if (!users || users.length === 0) {
         usersList.innerHTML = '<tr><td colspan="4">No users found.</td></tr>';
         return;
@@ -389,7 +397,8 @@ async function loadPendingBooks() {
         displayPendingBooks(books);
     } catch (error) {
         console.error('Error loading pending books:', error);
-        document.getElementById('pending-books-list').innerHTML = '<p>Error loading pending books. Please check if the server is running and you are logged in as admin.</p>';
+        document.getElementById('pending-books-list').innerHTML = '<p style="color:red;">Error loading pending books: ' + error + '</p>';
+        document.getElementById('admin-panel').insertAdjacentHTML('afterbegin', '<div style="color:red;font-size:1.2em;">Error loading pending books: ' + error + '</div>');
     }
 }
 
@@ -582,6 +591,8 @@ function closeAdminModal() {
 // --- Book CRUD ---
 function displayBooksAdmin(books) {
     const booksList = document.getElementById('books-list');
+    // Debug output
+    document.getElementById('admin-panel').insertAdjacentHTML('beforeend', `<pre style="color:blue;">Books API response: ${JSON.stringify(books, null, 2)}</pre>`);
     if (!books || books.length === 0) {
         booksList.innerHTML = '<tr><td colspan="5">No books found.</td></tr>';
         return;
@@ -642,12 +653,13 @@ async function loadBooksAdmin() {
         const response = await fetch(`/api/admin/all-books`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
-        if (!response.ok) throw new Error('Failed to load books');
+        if (!response.ok) throw new Error('Failed to load books: ' + response.status);
         const books = await response.json();
         displayBooksAdmin(books);
     } catch (error) {
         console.error('Error loading books:', error);
-        document.getElementById('books-list').innerHTML = '<tr><td colspan="5">Error loading books. Please check if the server is running and you are logged in as admin.</td></tr>';
+        document.getElementById('books-list').innerHTML = '<tr><td colspan="5" style="color:red;">Error loading books: ' + error + '</td></tr>';
+        document.getElementById('admin-panel').insertAdjacentHTML('afterbegin', '<div style="color:red;font-size:1.2em;">Error loading books: ' + error + '</div>');
     }
 }
 
